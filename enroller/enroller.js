@@ -18,7 +18,9 @@ const https = require("node:https");
 const os = require("node:os");
 const fs = require("node:fs");
 const path = require("node:path");
+const dgram = require("node:dgram");
 const selfsigned = require("selfsigned");
+const qrcode = require("qrcode");
 
 const APP_UA = "Mozilla/5.0 MoodleMobile"; // passes core_useragent::is_moodle_app()
 
@@ -125,6 +127,24 @@ async function storeOnWorker(account) {
 }
 
 // ---------- networking ----------
+
+/** The LAN IP the OS actually routes outbound traffic through (the real Wi-Fi/Ethernet
+ *  one), which is the address the phone on the same network should use. */
+function primaryIP() {
+  return new Promise((resolve) => {
+    const s = dgram.createSocket("udp4");
+    try {
+      s.connect(80, "8.8.8.8", () => {
+        let addr = null;
+        try { addr = s.address().address; } catch {}
+        s.close();
+        resolve(addr);
+      });
+    } catch {
+      resolve(null);
+    }
+  });
+}
 
 function lanIPv4s() {
   const out = [];
@@ -318,7 +338,7 @@ const PAGE = `<!doctype html>
 
 // ---------- boot ----------
 
-function main() {
+async function main() {
   const ips = lanIPv4s();
   const { key, cert } = makeCert(ips);
   const server = https.createServer({ key, cert }, handle);
@@ -331,14 +351,35 @@ function main() {
     }
     waitForKey();
   });
-  server.listen(CONFIG.port, "0.0.0.0", () => {
+  server.listen(CONFIG.port, "0.0.0.0", async () => {
+    // Pick the address the phone should use: the real outbound LAN IP if we can find it.
+    const primary = (await primaryIP()) || ips[0] || null;
+    const primaryUrl = primary ? "https://" + primary + ":" + CONFIG.port : null;
+
     console.log("\n======================================================");
     console.log("  HUJI Attend — Enroller is running");
     console.log("======================================================\n");
-    console.log("On your PHONE (same Wi-Fi), open ONE of these and accept the");
-    console.log("certificate warning (Advanced -> proceed):\n");
-    if (ips.length === 0) console.log("  (no network address found — connect to Wi-Fi and restart)");
-    for (const ip of ips) console.log("    https://" + ip + ":" + CONFIG.port);
+
+    if (primaryUrl) {
+      console.log("On your PHONE (same Wi-Fi), scan this to open the page:\n");
+      try {
+        const qr = await qrcode.toString(primaryUrl, { type: "terminal", small: true });
+        console.log(qr);
+      } catch {
+        /* fall back to the text URL below */
+      }
+      console.log("  " + primaryUrl + "\n");
+      console.log("Accept the certificate warning (Advanced -> proceed). No login.");
+    } else {
+      console.log("No network address found — connect to Wi-Fi and restart.");
+    }
+
+    const others = ips.filter((ip) => ip !== primary);
+    if (others.length) {
+      console.log("\nIf that address doesn't work, try one of these instead:");
+      for (const ip of others) console.log("    https://" + ip + ":" + CONFIG.port);
+    }
+
     console.log("\nThen: Moodle profile -> 'QR code for mobile app access' -> scan it.");
     console.log("Target Moodle : " + (CONFIG.moodleBaseUrl || "(from each QR)"));
     console.log("Cloud app     : " + CONFIG.workerUrl);

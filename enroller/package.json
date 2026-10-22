@@ -8,9 +8,12 @@
     "build:win": "pkg . --targets node22-win-x64 --output dist/HUJI-Attend-Enroller.exe"
   },
   "pkg": {
-    "assets": ["assets/**/*"]
+    "assets": [
+      "assets/**/*"
+    ]
   },
   "dependencies": {
+    "qrcode": "^1.5.4",
     "selfsigned": "^2.4.1"
   },
   "devDependencies": {
