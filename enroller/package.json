@@ -1,0 +1,19 @@
+{
+  "name": "huji-enroller",
+  "version": "1.0.0",
+  "private": true,
+  "bin": "enroller.js",
+  "scripts": {
+    "start": "node enroller.js",
+    "build:win": "pkg . --targets node22-win-x64 --output dist/HUJI-Attend-Enroller.exe"
+  },
+  "pkg": {
+    "assets": ["assets/**/*"]
+  },
+  "dependencies": {
+    "selfsigned": "^2.4.1"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.6.0"
+  }
+}

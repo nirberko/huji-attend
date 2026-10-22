@@ -1,0 +1,37 @@
+{
+  "name": "huji-attend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3030",
+    "dev:local-moodle": "NODE_EXTRA_CA_CERTS=../local-moodle.pem next dev -p 3030",
+    "dev:cert": "mkdir -p certificates && IP=$(ipconfig getifaddr en0) && openssl req -x509 -newkey rsa:2048 -nodes -days 825 -subj \"/CN=huji-attend dev\" -addext \"subjectAltName=DNS:localhost,IP:127.0.0.1,IP:$IP\" -keyout certificates/dev-key.pem -out certificates/dev-cert.pem && echo \"cert for localhost + $IP\"",
+    "dev:https": "next dev -p 3030 --experimental-https --experimental-https-ca ../local-moodle.pem --experimental-https-key certificates/dev-key.pem --experimental-https-cert certificates/dev-cert.pem",
+    "build": "next build",
+    "lint": "eslint",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+  },
+  "dependencies": {
+    "@opennextjs/cloudflare": "^1.20.13",
+    "jsqr": "^1.4.0",
+    "next": "16.4.2",
+    "node-html-parser": "^9.0.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.2",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "wrangler": "^4.151.3"
+  },
+  "packageManager": "pnpm@11.20.0"
+}

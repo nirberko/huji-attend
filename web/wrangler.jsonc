@@ -1,0 +1,28 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"main": ".open-next/worker.js",
+	"name": "huji-attend",
+	"compatibility_date": "2026-10-01",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"services": [
+		{
+			// Self-reference service binding, must match the worker name
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "huji-attend"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "huji-attend",
+			"database_id": "6837d10e-c3a7-4278-aa4b-dec623d7ac4e",
+			"migrations_dir": "migrations",
+			// `next dev` uses this real D1 too, not a local copy.
+			"remote": true
+		}
+	]
+}

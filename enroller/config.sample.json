@@ -1,0 +1,6 @@
+{
+  "workerUrl": "https://huji-attend.nirberko.workers.dev",
+  "appPassword": "KW4jG16wvDc1hF0GiLjl",
+  "moodleBaseUrl": "https://moodle.huji.ac.il/2026-27",
+  "port": 8787
+}

@@ -1,0 +1,34 @@
+# OS
+.DS_Store
+
+# Python (original script)
+.venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Next.js / OpenNext build output
+web/.next/
+web/.open-next/
+web/.wrangler/
+web/next-env.d.ts
+web/cloudflare-env.d.ts
+web/*.tsbuildinfo
+
+# Secrets & local-only
+**/.env
+**/.env.*
+!**/.env.example
+web/certificates/
+enroller/config.json
+enroller/dist/
+
+# Local dev certificate (public cert, but not needed in the repo)
+local-moodle.pem
+
+# Test QR images (may embed login keys)
+qr.png
+qr2.png
+*.qr.png
